@@ -1,133 +1,115 @@
+# 📂 Auto File Organizer & 🔁 One-Click Restore
 
-# 📁 File Organizer & Undo Script
-
-## Overview
-
-This project includes **two Python scripts** designed to automate file management in a specific folder:
-
-1. **File Organizer Script** – Monitors a folder and automatically moves new files into subfolders based on their filenames.
-2. **Undo Script** – Reverses the organization by moving files back to the original folder and removing empty folders.
+A pair of powerful Python scripts to **automatically organize** your files based on filename prefixes — and **instantly undo** the grouping with a single command.
 
 ---
 
-## 1. 📂 `file_organizer.py`
+## 🚀 Overview
 
-### 🔧 Purpose
+These scripts are designed for users who download or accumulate lots of files and need a clean, automatic way to:
 
-This script **monitors a specific folder** for new files and **automatically organizes** them into subfolders. Each subfolder is named after the **first 5 characters** of the file name (excluding the extension).
-
----
-
-### 🔍 How It Works
-
-- Uses `watchdog` to monitor the folder for new files.
-- When a new file is created:
-  - It waits briefly to ensure the file is fully copied.
-  - Extracts the base filename (without extension).
-  - Creates or reuses a subfolder named after the **first 5 characters** of the filename.
-  - Moves the file into the appropriate subfolder.
-- Logs every operation to a file (`file_mover.log`) within the monitored folder.
+✅ **Organize files** with matching prefixes into grouped folders  
+🕒 **Handle unmatched files** after a timeout period  
+♻️ **Recover from premature folder creation mistakes**  
+🔁 **Restore all files** back to their original, flat structure at any time  
 
 ---
 
-### 🗂 Example
+## 🧠 How It Works
 
-If a file named `video12345.mp4` is added:
-- The subfolder `video` will be created (if not already there).
-- The file will be moved to:  
-  `C:\Users\ebene\Downloads\Video\video\video12345.mp4`
+### 🟢 `file_organizer.py`
+
+> Continuously watches a target folder and organizes files as they arrive.
+
+| Feature | Description |
+|--------|-------------|
+| 📛 Prefix-Based Grouping | Groups files with the same **first 5 characters** into a subfolder named after that prefix. |
+| ⏳ Singular Timeout | Files without a match after **30 seconds** go to the `SingularS/` folder. |
+| 🔄 Dynamic Regrouping | If a matching file shows up later, previously singular files are **automatically regrouped**. |
+| 🚫 Premature Folder Detection | If a folder was mistakenly created for a single file, it gets **reverted and redirected**. |
+| 🧾 Logging | All activity is recorded in a clean, timestamped log file for easy monitoring. |
 
 ---
 
-### 🧰 Dependencies
+### 🔁 `file_restore.py`
 
-- `watchdog`
-- `os`, `shutil`, `time`, `logging`
+> Instantly reverts all folder changes made by the organizer.
 
-Install watchdog if not already installed:
+| Feature | Description |
+|--------|-------------|
+| 📦 Folder Flattening | Moves all files back from prefix-named folders to the main directory. |
+| 🧹 Cleanup | Deletes empty folders after restoring their contents. |
+| 🗃️ Singular Recovery | Also restores files from the `SingularS/` folder. |
+| 🧾 Logging | Keeps a detailed restore log so you can see what was moved. |
+
+---
+
+## 🛠️ Setup & Configuration
+
+### 1. Install Dependencies
+
 ```bash
 pip install watchdog
-```
+2. Configure Your Folder Path
+Inside both scripts, update this line to your desired folder:
+FOLDER_TO_WATCH = r"C:\Users\YourName\Downloads\Video"
+💡 Make sure the same path is used in both file_organizer.py and file_restore.py.
 
----
+▶️ Usage
+📂 Run the Organizer
+Starts watching your folder for new files and groups them automatically.
 
-### ▶️ How to Run
-
-```bash
 python file_organizer.py
-```
+Keep it running in the background.
 
-The script will keep running until interrupted (`Ctrl+C`).
+Stop anytime with Ctrl+C.
 
----
-
-## 2. ↩️ `undo_file_organizer.py`
-
-### 🔧 Purpose
-
-This script **reverses the folder organization** done by the `file_organizer.py`. It:
-- Moves files from subfolders back to the main folder.
-- Deletes the empty subfolders.
-
----
-
-### 🔍 How It Works
-
-- Iterates through subfolders in the monitored directory.
-- For each folder, it checks if a file inside matches the folder name (e.g., `video/video12345.mp4`).
-- Moves the file back to the main folder.
-- If the subfolder is empty after the move, it is deleted.
-- All actions are logged to `undo_file_mover.log`.
-
----
-
-### 🗂 Example
-
-If `video12345.mp4` is in:
-```
-C:\Users\ebene\Downloads\Video\video\
-```
-
-It will be moved back to:
-```
-C:\Users\ebene\Downloads\Video\
-```
-
-And the folder `video` will be removed if empty.
-
----
-
-### ▶️ How to Run
-
-```bash
-python undo_file_organizer.py
-```
-
-One-time execution. Prints:  
-`Undo process completed. Check log for details.`
-
----
-
-## 📄 Logs
-
-Each script writes logs to the monitored folder:
-
-- `file_mover.log` – Activity of the organizer.
-- `undo_file_mover.log` – Activity of the undo script.
-
-These logs contain timestamps and details of each file move or error.
-
----
-
-## ⚠️ Notes & Customization
-
-- **Change the folder path** (`FOLDER_TO_WATCH`) to the one you want to monitor.
-- Current logic uses the **first 5 characters** of the filename. You can adjust that by editing this line:
-  ```python
-  folder_name = file_base[:5]
-  ```
+🔁 Run the Restore
+Moves all files back into the main folder, cleaning up any created folders.
 
 
----
+python file_restore.py
+📋 Folder Behavior Examples
+Before Organizer Runs:
 
-**Author:** EBENEZER KWEKU ESSEL
+📁 Video/
+├── ABCDE_01.mp4
+├── ABCDE_02.mp4
+├── WXYZA_01.mp4
+After Organizer Runs:
+
+📁 Video/
+├── 📁 ABCDE/
+│   ├── ABCDE_01.mp4
+│   └── ABCDE_02.mp4
+├── 📁 SingularS/
+│   └── WXYZA_01.mp4
+After Running Restore:
+
+📁 Video/
+├── ABCDE_01.mp4
+├── ABCDE_02.mp4
+├── WXYZA_01.mp4
+📄 Logs
+All activity is logged to these files in your watch folder:
+
+📄 file_mover.log – Organizer activity
+
+📄 file_restore.log – Restore activity
+
+⚠️ Notes & Tips
+Files are grouped strictly by their first 5 characters (e.g., ABCDE_filename.ext).
+
+Avoid manually creating 5-letter-named folders in the watch directory unless intended.
+
+Always run file_restore.py before deleting or archiving organized files, to bring everything back to its original state.
+
+👨‍💻 Author
+Crafted with 💻 and ☕ by [Your Name]
+For automation lovers and folder minimalists.
+
+📬 Feedback & Contributions
+Have suggestions or improvements? Open an issue or submit a pull request!
+
+✅ License
+This project is free to use and modify — no strings attached.
