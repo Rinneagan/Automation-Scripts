@@ -1,4 +1,6 @@
 from scapy.all import *
+from scapy.all import DNS, DNSQR, IP, UDP
+
 import netifaces
 from autodetect_network import get_local_ip, get_network_interface
 
