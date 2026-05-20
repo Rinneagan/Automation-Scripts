@@ -53,5 +53,7 @@ def restore_files():
 
 if __name__ == "__main__":
     logging.info("Starting restore operation...")
+    print("🔁 Starting restore operation...")
     restore_files()
     logging.info("Restore operation completed.")
+    print("✅ Restore operation completed!")
