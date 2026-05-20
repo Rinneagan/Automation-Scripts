@@ -154,6 +154,8 @@ if __name__ == "__main__":
     observer.schedule(handler, FOLDER_TO_WATCH, recursive=False)
     observer.start()
     logging.info("Started watching folder...")
+    print(f"👀 Started watching folder: {FOLDER_TO_WATCH}")
+    print("Press Ctrl+C to stop.")
 
     try:
         while True:
@@ -163,4 +165,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         observer.stop()
         logging.info("Stopped monitoring.")
+        print("\n🛑 Stopped monitoring.")
     observer.join()
